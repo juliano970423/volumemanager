@@ -324,6 +324,7 @@ class Service : AccessibilityService() {
     }
 
     override fun onKeyEvent(event: KeyEvent): Boolean {
+				return false
         Log.i(TAG, "onKeyEvent ${event.action} ${event.keyCode}")
 
         if (manager.shizukuPermission != true) {
