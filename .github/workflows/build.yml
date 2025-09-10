@@ -24,31 +24,19 @@ jobs:
       - name: Build
         run: ./gradlew assembleRelease
 
-      - name: Sign and Align APK
-        run: |
-          # 步驟1：將金鑰解碼到一個檔案
-          echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > keystore.jks
-
-          # 步驟2：執行 zipalign
-          #   - 將未簽名的 APK (app-release-unsigned.apk) 作為輸入
-          #   - 將對齊後的結果輸出到一個新檔案 (app-release-aligned.apk)
-          $ANDROID_HOME/build-tools/34.0.0/zipalign -v 4 \
-            app/build/outputs/apk/release/app-release-unsigned.apk \
-            app-release-aligned.apk
-
-          # 步驟3：執行 apksigner
-          #   - 讀取上一步生成的已對齊 APK (app-release-aligned.apk) 作為輸入
-          #   - 簽名後覆蓋原檔案，因此不需要 --out 參數
-          $ANDROID_HOME/build-tools/34.0.0/apksigner sign \
-            --ks keystore.jks \
-            --ks-pass pass:${{ secrets.KEYSTORE_PASSWORD }} \
-            --ks-key-alias ${{ secrets.KEY_ALIAS }} \
-            --key-pass pass:${{ secrets.KEY_PASSWORD }} \
-            app-release-aligned.apk
+#      - name: Sign APK
+#        run: |
+#          echo "${{ secrets.KEYSTORE_FILE }}" | base64 -d > keystore.jks
+#          $ANDROID_HOME/build-tools/34.0.0/zipalign -c -v 4 app/build/outputs/apk/release/app-release-unsigned.apk
+#          $ANDROID_HOME/build-tools/34.0.0/apksigner sign \
+#            --ks keystore.jks \
+#            --ks-pass pass:${{ secrets.KEYSTORE_PASSWORD }} \
+#            --ks-key-alias ${{ secrets.KEY_ALIAS }} \
+#            --key-pass pass:${{ secrets.KEY_PASSWORD }} \
+#            app/build/outputs/apk/release/app-release-unsigned.apk
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
           name: volume-manager.apk
-          # 這裡現在上傳的是已簽名的檔案
-          path: app-release-aligned.apk
+          path: app/build/outputs/apk/release/app-release-unsigned.apk
